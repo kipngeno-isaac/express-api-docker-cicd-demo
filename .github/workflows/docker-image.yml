@@ -24,3 +24,16 @@ jobs:
       run: docker build -t scriptg6/express-api-demo .
     - name: Push to Dockerhub
       run: docker push scriptg6/express-api-demo:latest
+
+    - name: Deploy using ssh
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST_ADDRESS }}
+        username: ${{ secrets.HOST_USERNAME }}
+        key: ${{ secrets.HOST_PRIVATE_KEY }}
+        port: 22
+        script: |
+          docker stop express-api-demo || true
+          docker rm express-api-demo || true
+          docker pull scriptg6/express-api-demo:latest
+          docker run -d --name express-api-demo -p 3000:3000 scriptg6/express-api-demo:latest
